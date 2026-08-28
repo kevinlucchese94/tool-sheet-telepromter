@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+
+# Dati locali della band (canzoni caricate) - non vanno nel repo pubblico
+server/data/db.json
+server/data/uploads/*
+!server/data/uploads/.gitkeep
+
+.env
+.DS_Store
+*.log

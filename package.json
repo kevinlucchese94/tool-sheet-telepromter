@@ -1,0 +1,19 @@
+{
+  "name": "tool-sheet-telepromter",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Gobbo digitale per band: seleziona una canzone da tablet e proiettala a schermo intero su qualsiasi dispositivo in rete locale.",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm:dev --workspace server\" \"npm:dev --workspace client\"",
+    "build": "npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "setup": "npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
