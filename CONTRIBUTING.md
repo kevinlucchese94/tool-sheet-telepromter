@@ -19,7 +19,16 @@ Server su `http://localhost:4000`, client Vite su `http://localhost:5173`
 - `server/src/routes/songs.js` — API REST per caricare/elencare/cancellare
   canzoni e servire il PDF originale (`GET /api/songs/:id/pdf`).
 - `server/src/lib/playbackState.js` — stato condiviso (canzone corrente,
-  frazione di scorrimento 0–1), tenuto in memoria.
+  frazione di scorrimento 0–1 del cantante e, separata, quella di
+  chitarrista e batterista), tenuto in memoria.
+- `server/src/lib/parts.js` — ricerca del PDF di chitarra/batteria con lo
+  stesso nome della canzone nella cartella `PARTS_DIR`.
+- `client/src/lib/role.js` — ruolo del dispositivo, salvato in
+  `localStorage`.
+- `client/src/pages/RoleGate.jsx`, `RolePicker.jsx` — scelta "Chi sei?" e
+  instradamento prima della home.
+- `client/src/pages/Part.jsx` — vista di chitarrista/batterista (la
+  propria parte, scroll indipendente).
 - `client/src/lib/pdfjs.js` — estrazione delle righe di testo dal PDF,
   eseguita nel browser con `pdf.js` al momento dell'upload (usata per la
   modalità "solo testo" e per l'anteprima sul controller).

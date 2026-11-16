@@ -77,7 +77,7 @@ export default function Display() {
     return (
       <div className="display-empty">
         {controls}
-        <p>In attesa di una canzone dal controller…</p>
+        <p>Seleziona sul tuo tablet la canzone da caricare</p>
       </div>
     );
   }

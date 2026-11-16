@@ -1,11 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 
 import { db } from './lib/db.js';
+import { PART_ROLES, PARTS_DIR } from './lib/parts.js';
 import { songsRouter } from './routes/songs.js';
 import { getState, setSong, setScroll, stepScroll, setFontSize } from './lib/playbackState.js';
 
@@ -35,6 +37,12 @@ app.get('*', (req, res, next) => {
 io.on('connection', (socket) => {
   socket.emit('state:update', getState());
 
+  // Per chi apre una vista senza ricaricare la pagina (es. dopo "Cambia ruolo"):
+  // lo stato arriva solo a chi lo chiede, senza disturbare gli altri client.
+  socket.on('state:get', () => {
+    socket.emit('state:update', getState());
+  });
+
   socket.on('song:select', async ({ songId }) => {
     await db.read();
     const song = db.data.songs.find((s) => s.id === songId);
@@ -42,12 +50,14 @@ io.on('connection', (socket) => {
     io.emit('state:update', setSong(songId));
   });
 
-  socket.on('scroll:step', ({ delta }) => {
-    io.emit('state:update', stepScroll(delta));
+  // `role` (chitarra | batteria) fa scorrere solo la parte di quello
+  // strumento; senza ruolo scorre il cantante, come prima.
+  socket.on('scroll:step', ({ delta, role }) => {
+    io.emit('state:update', stepScroll(delta, role));
   });
 
-  socket.on('scroll:set', ({ fraction }) => {
-    io.emit('state:update', setScroll(fraction));
+  socket.on('scroll:set', ({ fraction, role }) => {
+    io.emit('state:update', setScroll(fraction, role));
   });
 
   socket.on('settings:fontSize', ({ fontSize }) => {
@@ -55,6 +65,10 @@ io.on('connection', (socket) => {
   });
 });
 
+// Crea le cartelle delle parti se non esistono, così basta trascinarci i PDF.
+await Promise.all(PART_ROLES.map((role) => fs.mkdir(path.join(PARTS_DIR, role), { recursive: true }).catch(() => {})));
+
 httpServer.listen(PORT, () => {
   console.log(`Server gobbo in ascolto su http://0.0.0.0:${PORT}`);
+  console.log(`Parti chitarra/batteria lette da: ${PARTS_DIR}`);
 });

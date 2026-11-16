@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db } from '../lib/db.js';
+import { PART_ROLES, findPartPdf } from '../lib/parts.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, '..', '..', 'data', 'uploads');
@@ -45,11 +46,31 @@ export function songsRouter({ io }) {
     res.json(song);
   });
 
+  // Per quali strumenti esiste un PDF dedicato (stesso nome della canzone).
+  router.get('/:id/parts', async (req, res) => {
+    await db.read();
+    const song = db.data.songs.find((s) => s.id === req.params.id);
+    if (!song) return res.status(404).json({ error: 'Canzone non trovata' });
+    const parts = {};
+    for (const role of PART_ROLES) {
+      parts[role] = Boolean(await findPartPdf(role, song));
+    }
+    res.json(parts);
+  });
+
+  // Con ?role=chitarra|batteria serve la parte dello strumento se esiste,
+  // altrimenti ricade sul PDF del cantante (stessa risposta di sempre).
   router.get('/:id/pdf', async (req, res) => {
     await db.read();
     const song = db.data.songs.find((s) => s.id === req.params.id);
     if (!song) return res.status(404).json({ error: 'Canzone non trovata' });
-    res.sendFile(pdfPath(song.id), (err) => {
+
+    let file = pdfPath(song.id);
+    if (PART_ROLES.includes(req.query.role)) {
+      file = (await findPartPdf(req.query.role, song)) ?? file;
+    }
+
+    res.sendFile(file, { dotfiles: 'allow' }, (err) => {
       if (err && !res.headersSent) res.status(404).json({ error: 'PDF non trovato' });
     });
   });
@@ -70,6 +91,9 @@ export function songsRouter({ io }) {
 
       const title = req.body.title?.trim() || req.file.originalname.replace(/\.pdf$/i, '');
       const artist = req.body.artist?.trim() || '';
+      // Nome originale del file (inviato dal client in UTF-8): serve ad
+      // abbinare le parti di chitarra/batteria anche se il titolo è stato cambiato.
+      const fileName = req.body.fileName?.trim() || '';
       const id = nanoid(10);
 
       await fs.mkdir(uploadsDir, { recursive: true });
@@ -79,6 +103,7 @@ export function songsRouter({ io }) {
         id,
         title,
         artist,
+        fileName,
         lines,
         lineCount: lines.length,
         createdAt: new Date().toISOString(),

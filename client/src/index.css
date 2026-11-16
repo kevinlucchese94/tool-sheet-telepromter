@@ -253,3 +253,66 @@ body {
   position: relative;
   width: 100%;
 }
+
+/* Ruoli: scelta del ruolo e vista di chitarrista/batterista */
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.role-switch {
+  text-align: center;
+  padding: 0 16px 32px;
+  font-size: 0.85rem;
+}
+
+.role-switch a {
+  color: #777;
+}
+
+a.chip {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.part-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  max-width: 45vw;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.part-nav {
+  position: absolute;
+  right: 16px;
+  bottom: 24px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.part-nav-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.part-nav-btn:active {
+  background: rgba(255, 255, 255, 0.28);
+}

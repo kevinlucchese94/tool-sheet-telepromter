@@ -6,6 +6,7 @@ build/
 server/data/db.json
 server/data/uploads/*
 !server/data/uploads/.gitkeep
+server/data/parts/
 
 .env
 .DS_Store

@@ -48,6 +48,58 @@ aiuto serve.
 Tutti i dispositivi comunicano tramite lo stesso server sulla rete locale:
 niente internet necessario durante il live.
 
+## Ruoli: cantante, chitarrista, batterista
+
+La prima volta che si apre la pagina su un dispositivo viene chiesto
+"Chi sei?" (la scelta resta salvata nel browser; si cambia da `/ruolo`).
+
+- **Cantante**: tutto come descritto sopra. Sceglie la canzone dal
+  repertorio e comanda il gobbo.
+- **Chitarrista / batterista** (`/parte`): il loro tablet segue la canzone
+  scelta dal cantante e mostra **la propria parte** a schermo intero, in
+  negativo. Scorrono con ▲/▼ sullo schermo o con gli stessi tasti di
+  tastiera/pedale, e **lo scroll è solo loro**: non muove il gobbo del
+  cantante né la parte degli altri. Se per il brano non c'è una parte
+  dedicata, vedono il PDF del cantante (con un avviso in alto), sempre con
+  scroll indipendente.
+
+### Dove mettere le parti di chitarra e batteria
+
+Il server cerca i PDF in una cartella con una sottocartella per strumento:
+
+```
+<PARTS_DIR>/
+├── chitarra/
+│   └── Baila Morena +3.pdf
+└── batteria/
+    └── Baila Morena +3.pdf
+```
+
+Di default è `server/data/parts/` (creata al primo avvio). Per usare la
+cartella sincronizzata da Google Drive per desktop, imposta `PARTS_DIR`
+(la sottocartella `cantante/` eventualmente presente viene ignorata: il
+cantante continua a caricare i PDF dal browser):
+
+```bash
+# macOS / Linux
+PARTS_DIR="/percorso/di/Musica" npm start
+```
+
+```powershell
+# Windows (PowerShell)
+$env:PARTS_DIR = "G:\Il mio Drive\Musica"; npm start
+```
+
+Il PDF di uno strumento viene abbinato alla canzone **dal nome del file**,
+ignorando maiuscole, accenti e punteggiatura (`BAILA MORENA +3.pdf` =
+`Baila Morena +3.pdf`). Si confronta con il nome del file caricato dal
+cantante e con il titolo. I file nuovi sono visibili subito, senza
+riavviare il server.
+
+> Con Google Drive per desktop imposta la cartella come **"Disponibile
+> offline"**: con i file solo in streaming il primo caricamento di un PDF
+> può essere lento, e a metà concerto non è il momento.
+
 ## Requisiti
 
 - Node.js 20+ e npm
@@ -80,8 +132,10 @@ Poi:
    (in kiosk mode se possibile — vedi sotto).
 2. Sull'iPad/telefono apri `http://<ip-del-pc>:4000/` per scegliere ed
    avanzare le canzoni.
-3. Gli altri componenti della band possono aprire lo stesso `/display` su
-   qualunque dispositivo per vedere il testo anche loro.
+3. Chitarrista e batterista aprono `http://<ip-del-pc>:4000/` dal proprio
+   tablet e scelgono il proprio ruolo (vedi sopra). Il PC gobbo, finché
+   nessuno sceglie una canzone, mostra "Seleziona sul tuo tablet la canzone
+   da caricare".
 
 ### PC dedicato al gobbo: consiglio Linux + Chromium kiosk
 
@@ -95,7 +149,8 @@ chromium --kiosk --incognito http://localhost:4000/display
 
 configurato per partire all'avvio (autostart). Se il PC serve anche per
 altro, va benissimo restare su Windows/macOS e aprire il browser a schermo
-intero (F11) quando serve.
+intero (F11) quando serve. Su Windows funziona anche la modalità kiosk di
+Chrome: `chrome.exe --kiosk http://localhost:4000/display`.
 
 ## Roadmap
 

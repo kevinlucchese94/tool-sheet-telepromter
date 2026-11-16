@@ -12,7 +12,7 @@ const STEP_RATIO = 0.85; // frazione di uno "schermo" avanzata ad ogni pressione
  * (0 = inizio, 1 = fondo del documento) — la stessa frazione sincronizzata
  * su tutti i display, ciascuno la applica alla propria altezza scrollabile.
  */
-const PdfLyricsView = forwardRef(function PdfLyricsView({ songId, zoom, scrollFraction }, ref) {
+const PdfLyricsView = forwardRef(function PdfLyricsView({ songId, role, zoom, scrollFraction }, ref) {
   const containerRef = useRef(null);
   const wrapperRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -27,7 +27,7 @@ const PdfLyricsView = forwardRef(function PdfLyricsView({ songId, zoom, scrollFr
     wrapper.innerHTML = '';
 
     async function render() {
-      const pdfDoc = await loadPdfDocument({ url: pdfUrl(songId) });
+      const pdfDoc = await loadPdfDocument({ url: pdfUrl(songId, role) });
       if (cancelled) return;
 
       const containerWidth = container.clientWidth;
@@ -65,7 +65,7 @@ const PdfLyricsView = forwardRef(function PdfLyricsView({ songId, zoom, scrollFr
     return () => {
       cancelled = true;
     };
-  }, [songId, zoom]);
+  }, [songId, role, zoom]);
 
   useEffect(() => {
     if (!ready || !containerRef.current) return;
